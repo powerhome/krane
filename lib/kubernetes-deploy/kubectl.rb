@@ -9,7 +9,6 @@ module KubernetesDeploy
 
     def initialize(namespace:, context:, logger:, log_failure_by_default:, default_timeout: DEFAULT_TIMEOUT,
       output_is_sensitive_default: false)
-      @kubeconfig = KubeclientBuilder.kubeconfig
       @namespace = namespace
       @context = context
       @logger = logger
@@ -21,15 +20,15 @@ module KubernetesDeploy
       raise ArgumentError, "context is required" if context.blank?
     end
 
-    def run(*args, log_failure: nil, use_context: true, use_namespace: true, output: nil,
+    def run(*args, log_failure: nil, use_namespace: true, output: nil,
       raise_if_not_found: false, attempts: 1, output_is_sensitive: nil)
       log_failure = @log_failure_by_default if log_failure.nil?
       output_is_sensitive = @output_is_sensitive_default if output_is_sensitive.nil?
 
       args = args.unshift("kubectl")
-      args.push("--kubeconfig=#{@kubeconfig}")
+      args.push("--kubeconfig=#{config_for_context(@context)}")
       args.push("--namespace=#{@namespace}") if use_namespace
-      args.push("--context=#{@context}")     if use_context
+      args.push("--context=#{@context}")
       args.push("--output=#{output}") if output
       args.push("--request-timeout=#{@default_timeout}") if @default_timeout
       out, err, st = nil
@@ -77,6 +76,13 @@ module KubernetesDeploy
 
     def server_version
       version_info[:server]
+    end
+
+    def config_for_context(context)
+      @kubeclient ||= KubeclientBuilder.new
+      @context_config_map ||= {}
+      @context_config_map[context] ||=
+        @kubeclient.config_for_context(context).filename
     end
 
     private

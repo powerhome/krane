@@ -21,10 +21,6 @@ class KubectlTest < KubernetesDeploy::TestCase
     end
   end
 
-  def kubeconfig_in_use
-    KubernetesDeploy::KubeclientBuilder.kubeconfig
-  end
-
   def test_run_constructs_the_expected_command_and_returns_the_correct_values
     stub_open3(
       %W(kubectl get pods --output=json --kubeconfig=#{kubeconfig_in_use}) +
@@ -36,14 +32,6 @@ class KubectlTest < KubernetesDeploy::TestCase
     assert(st.success?)
     assert_equal("{ items: [] }", out)
     assert_equal("", err)
-  end
-
-  def test_run_omits_context_flag_if_use_context_is_false
-    stub_open3(
-      %W(kubectl get pods --output=json --kubeconfig=#{kubeconfig_in_use}) +
-      %W(--namespace=testn --request-timeout=#{timeout}),
-      resp: "{ items: [] }")
-    build_kubectl.run("get", "pods", "--output=json", use_context: false)
   end
 
   def test_run_omits_namespace_flag_if_use_namespace_is_false
@@ -125,7 +113,8 @@ class KubectlTest < KubernetesDeploy::TestCase
 
   def test_custom_timeout_is_used
     custom_kubectl = KubernetesDeploy::Kubectl.new(namespace: 'testn', context: 'testc', logger: logger,
-    log_failure_by_default: true, default_timeout: '5s')
+      log_failure_by_default: true, default_timeout: '5s')
+    custom_kubectl.expects(:config_for_context).with('testc').returns(kubeconfig_in_use)
     stub_open3(
       %W(kubectl get pods --kubeconfig=#{kubeconfig_in_use} --namespace=testn --context=testc --request-timeout=5s),
       resp: "", err: "oops", success: false)
@@ -210,7 +199,19 @@ class KubectlTest < KubernetesDeploy::TestCase
     refute_logs_match("Kubectl out")
   end
 
+  def test_context_not_found
+    custom_kubectl = KubernetesDeploy::Kubectl.new(namespace: 'testc', context: 'fake', logger: logger,
+      log_failure_by_default: true)
+    assert_raises KubernetesDeploy::KubeclientBuilder::ContextMissingError do
+      custom_kubectl.run("get", "pods", log_failure: true)
+    end
+  end
+
   private
+
+  def kubeconfig_in_use
+    KubernetesDeploy::KubeclientBuilder.kubeconfig
+  end
 
   def timeout
     KubernetesDeploy::Kubectl::DEFAULT_TIMEOUT
@@ -233,8 +234,11 @@ class KubectlTest < KubernetesDeploy::TestCase
   end
 
   def build_kubectl(log_failure_by_default: true)
-    KubernetesDeploy::Kubectl.new(namespace: 'testn', context: 'testc', logger: logger,
+    context = 'testc'
+    kubectl = KubernetesDeploy::Kubectl.new(namespace: 'testn', context: context, logger: logger,
       log_failure_by_default: log_failure_by_default)
+    kubectl.expects(:config_for_context).with(context).returns(kubeconfig_in_use)
+    kubectl
   end
 
   def stub_open3(command, resp:, err: "", success: true)
