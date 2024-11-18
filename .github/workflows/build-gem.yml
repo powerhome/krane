@@ -24,6 +24,12 @@ jobs:
       with:
         ruby-version: 3.2.2
 
+    - name: Extract version from version.rb
+      id: extract_version
+      run: |
+        VERSION=$(ruby -r './lib/krane/version.rb' -e "puts Krane::VERSION")
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
     - name: Build the gem
       run: gem build krane.gemspec
 
@@ -31,14 +37,17 @@ jobs:
       id: get_gem_name
       run: echo "GEM_FILE=$(ls krane-*.gem)" >> $GITHUB_ENV
 
+    - name: List files for debugging
+      run: ls -la
+
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref_name }}
-        release_name: Release ${{ github.ref_name }}
+        tag_name: ${{ env.VERSION }}
+        release_name: Release ${{ env.VERSION }}
         draft: false
         prerelease: false
 
