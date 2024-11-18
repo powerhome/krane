@@ -27,6 +27,10 @@ jobs:
     - name: Build the gem
       run: gem build krane.gemspec
 
+    - name: Get gem file name
+      id: get_gem_name
+      run: echo "GEM_FILE=$(ls krane-*.gem)" >> $GITHUB_ENV
+
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
@@ -44,6 +48,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./krane-*.gem
-        asset_name: krane-*.gem
+        asset_path: ${{ env.GEM_FILE }}
+        asset_name: ${{ env.GEM_FILE }}
         asset_content_type: application/octet-stream
