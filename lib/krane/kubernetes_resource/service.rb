@@ -44,8 +44,7 @@ module Krane
     end
 
     def predeployed?
-      predeployed = krane_annotation_value("predeployed")
-      predeployed.nil? || predeployed == "false"
+      krane_annotation_value("predeployed") == "true"
     end
 
     def kind
