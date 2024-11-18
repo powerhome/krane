@@ -1,4 +1,4 @@
 # frozen_string_literal: true
 module Krane
-  VERSION = "3.4.2.1"
+  VERSION = "3.4.2.2"
 end

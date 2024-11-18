@@ -12,11 +12,10 @@ on:
 
 jobs:
   build:
-    name: Build + Publish
+    name: Build + Release
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      packages: write
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
@@ -28,7 +27,23 @@ jobs:
     - name: Build the gem
       run: gem build krane.gemspec
 
-    - name: Publish the gem to GitHub Packages
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
       env:
-        GEM_HOST_API_KEY: ${{ secrets.GITHUB_TOKEN }}
-      run: gem push *.gem --host=https://rubygems.pkg.github.com/${{ github.repository_owner }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Gem to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./krane-*.gem
+        asset_name: krane-*.gem
+        asset_content_type: application/octet-stream
