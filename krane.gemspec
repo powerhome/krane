@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = %w(lib)
 
-  spec.metadata['allowed_push_host'] = "https://rubygems.org"
+  spec.metadata['allowed_push_host'] = "https://rubygems.pkg.github.com"
 
   spec.required_ruby_version = '>= 2.7.6'
   spec.add_dependency("activesupport", ">= 5.0")
