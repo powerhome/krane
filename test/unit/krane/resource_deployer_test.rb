@@ -99,3 +99,9 @@ class ResourceDeployerTest < Krane::TestCase
     MockResource.new(name, hits_to_complete, final_status)
   end
 end
+
+MockResource = Struct.new(:id, :hits_to_complete, :status) do
+  def predeployed?
+    status == "success"
+  end
+end
