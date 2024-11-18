@@ -73,6 +73,7 @@ module Krane
         Deployment
         Service
         Pod
+        Job
       ).map { |r| [r, default_group] }
 
       crs = cluster_resource_discoverer.crds.select(&:predeployed?).map { |cr| [cr.kind, { group: cr.group }] }
