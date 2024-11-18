@@ -3,8 +3,12 @@ name: Ruby Gem
 on:
   push:
     branches: [ "fvr-247" ]
+    paths:
+      - "lib/krane/version.rb"
   pull_request:
     branches: [ "fvr-247" ]
+    paths:
+      - "lib/krane/version.rb"
 
 jobs:
   build:
