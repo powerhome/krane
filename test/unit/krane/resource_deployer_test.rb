@@ -101,6 +101,8 @@ class ResourceDeployerTest < Krane::TestCase
 end
 
 MockResource = Struct.new(:id, :hits_to_complete, :status) do
+  attr_accessor :deploy_started_at
+
   SYNC_DEPENDENCIES = [].freeze
 
   def predeployed?
@@ -123,7 +125,6 @@ MockResource = Struct.new(:id, :hits_to_complete, :status) do
     "core"
   end
 
-  def sync
-    # Implement sync logic if needed
+  def sync(_arg)
   end
 end
