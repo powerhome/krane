@@ -101,7 +101,17 @@ class ResourceDeployerTest < Krane::TestCase
 end
 
 MockResource = Struct.new(:id, :hits_to_complete, :status) do
+  SYNC_DEPENDENCIES = [].freeze
+
   def predeployed?
     status == "success"
+  end
+
+  def pretty_timeout_type
+    "default timeout type"
+  end
+
+  def type
+    "MockResource"
   end
 end
