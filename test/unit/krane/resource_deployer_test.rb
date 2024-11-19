@@ -114,4 +114,16 @@ MockResource = Struct.new(:id, :hits_to_complete, :status) do
   def type
     "MockResource"
   end
+
+  def deploy_method
+    :default_method
+  end
+
+  def group
+    "core"
+  end
+
+  def sync
+    # Implement sync logic if needed
+  end
 end
