@@ -16,7 +16,9 @@ jobs:
           - "1.23.17"
         test_suite:
           - "unit_test"
+          - "cli_test"
           - "serial_integration_test"
+          - "integration_test"
         include:
           - kubernetes_version: "1.23.17"
             kind_image: "kindest/node:v1.23.17@sha256:eb33093b461ffee7614ca65a39ac0fb57982e1407dc38df4df92811c4fbcb687"
