@@ -197,10 +197,6 @@ class ResourceCacheTest < Krane::TestCase
         },
       }
     end
-
-    def predeployed?
-      true
-    end
   end
 
   class FakeDeployment < MockResource
