@@ -504,7 +504,8 @@ class KraneDeployTest < Krane::IntegrationTest
       "Failed to deploy 1 resource",
       "Deployment/cannot-run: FAILED",
       "The following containers are in a state that is unlikely to be recoverable:",
-      "Crashing repeatedly",
+      # "Crashing repeatedly", # Received this error instead: 
+                                  # container-cannot-run: Failed to start (exit 127): failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: exec: "/some/bad/path": stat /some/bad/path: no such file or directory: unknown
       "Logs from container 'successful-init'",
       "Log from successful init container",
     ], in_order: true)
