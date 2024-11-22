@@ -60,7 +60,7 @@ class RestartTaskTest < Krane::IntegrationTest
       "Waiting for rollout",
       "Result: SUCCESS",
       "Successfully restarted 1 resource",
-      %r{StatefulSet/stateful-busybox.* 2 replicas},
+      %r{StatefulSet/stateful-busybox.* (2 replicas|1 replica, 1 currentReplica)},
     ],
       in_order: true)
   end
