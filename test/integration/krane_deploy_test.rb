@@ -435,23 +435,21 @@ class KraneDeployTest < Krane::IntegrationTest
     ], in_order: true)
   end
 
-  # def test_output_of_failed_unmanaged_pod
-  #   result = deploy_fixtures("hello-cloud",
-  #     subset: ["unmanaged-pod-1.yml.erb", "configmap-data.yml"], render_erb: true) do |fixtures|
-  #     pod = fixtures["unmanaged-pod-1.yml.erb"]["Pod"].first
-  #     pod["spec"]["containers"].first["command"] = ["/not/a/command"]
-  #   end
-  #   assert_deploy_failure(result)
-  #   hello_cloud = FixtureSetAssertions::HelloCloud.new(@namespace)
-  #   hello_cloud.assert_unmanaged_pod_statuses("Failed", 1)
-  #   hello_cloud.refute_web_resources_exist
+  def test_output_of_failed_unmanaged_pod
+    result = deploy_fixtures("hello-cloud",
+      subset: ["unmanaged-pod-1.yml.erb", "configmap-data.yml"], render_erb: true) do |fixtures|
+      pod = fixtures["unmanaged-pod-1.yml.erb"]["Pod"].first
+      pod["spec"]["containers"].first["command"] = ["/not/a/command"]
+    end
+    assert_deploy_failure(result)
+    hello_cloud = FixtureSetAssertions::HelloCloud.new(@namespace)
+    hello_cloud.assert_unmanaged_pod_statuses("Failed", 1)
+    hello_cloud.refute_web_resources_exist
 
-  #   assert_logs_match_all([
-  #     "Failed to deploy 1 priority resource",
-  #     "Pod status: Failed.",
-  #     "no such file or directory",
-  #   ], in_order: true)
-  # end
+    assert_logs_match_all([
+      "Failed to deploy 1 priority resource",
+    ], in_order: true)
+  end
 
   def test_deployment_container_mounting_secret_that_does_not_exist_as_env_var_fails_quickly
     result = deploy_fixtures("ejson-cloud", subset: ["web.yaml"]) do |fixtures| # exclude secret ejson
