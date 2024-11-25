@@ -32,6 +32,13 @@ module Krane
       end
     end
 
+    def jobs
+      @jobs ||= fetch_jobs.map do |job|
+        Job.new(namespace: namespace, context: context, logger: logger,
+          definition: job, statsd_tags: @namespace_tags)
+      end
+    end
+
     def prunable_resources(namespaced:)
       black_list = %w(Namespace Node ControllerRevision Event)
       fetch_resources(namespaced: namespaced).map do |resource|
@@ -129,6 +136,16 @@ module Krane
         MultiJson.load(raw_json)["items"]
       else
         raise FatalKubeAPIError, "Error retrieving Deployment: #{err}"
+      end
+    end
+
+    def fetch_jobs
+      raw_json, err, st = kubectl.run("get", "Job", output: "json", attempts: 5,
+        use_namespace: false)
+      if st.success?
+        MultiJson.load(raw_json)["items"]
+      else
+        raise FatalKubeAPIError, "Error retrieving Job: #{err}"
       end
     end
 
