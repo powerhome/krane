@@ -5,10 +5,6 @@ on:
     branches: [ "powerhrg" ]
     paths:
       - "lib/krane/version.rb"
-  pull_request:
-    branches: [ "powerhrg" ]
-    paths:
-      - "lib/krane/version.rb"
 
 jobs:
   build:
@@ -30,15 +26,19 @@ jobs:
         VERSION=$(ruby -r './lib/krane/version.rb' -e "puts Krane::VERSION")
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+    - name: Create a new tag
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git tag ${{ env.VERSION }}
+        git push origin ${{ env.VERSION }}
+
     - name: Build the gem
       run: gem build krane.gemspec
 
     - name: Get gem file name
       id: get_gem_name
       run: echo "GEM_FILE=$(ls krane-*.gem)" >> $GITHUB_ENV
-
-    - name: List files for debugging
-      run: ls -la
 
     - name: Create GitHub Release
       id: create_release
