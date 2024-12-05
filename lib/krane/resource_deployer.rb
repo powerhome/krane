@@ -52,6 +52,7 @@ module Krane
           (!attributes[:group] || r.group == attributes[:group]) &&
           r.predeployed?
         end
+
         StatsD.client.gauge('priority_resources.count', matching_resources.size, tags: statsd_tags)
 
         next if matching_resources.empty?

@@ -1,0 +1,62 @@
+name: Ruby Gem
+
+on:
+  push:
+    branches: [ "powerhrg" ]
+    paths:
+      - "lib/krane/version.rb"
+
+jobs:
+  build:
+    name: Build + Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Ruby 3.2.2
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.2.2
+
+    - name: Extract version from version.rb
+      id: extract_version
+      run: |
+        VERSION=$(ruby -r './lib/krane/version.rb' -e "puts Krane::VERSION")
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Create a new tag
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git tag ${{ env.VERSION }}
+        git push origin ${{ env.VERSION }}
+
+    - name: Build the gem
+      run: gem build krane.gemspec
+
+    - name: Get gem file name
+      id: get_gem_name
+      run: echo "GEM_FILE=$(ls krane-*.gem)" >> $GITHUB_ENV
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.VERSION }}
+        release_name: Release ${{ env.VERSION }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Gem to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.GEM_FILE }}
+        asset_name: ${{ env.GEM_FILE }}
+        asset_content_type: application/octet-stream

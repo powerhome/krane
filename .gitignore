@@ -16,3 +16,5 @@ dev/profile
 dev/flamegraph.pl
 .local-context
 bin/kind
+
+*.gem

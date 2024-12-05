@@ -341,10 +341,10 @@ class SerialDeployTest < Krane::IntegrationTest
     filepath = "#{fixture_path('crd')}/service_cr.yml"
     out, err, st = build_kubectl.run("create", "-f", filepath, log_failure: true, use_namespace: false)
     assert(st.success?, "Failed to create CRD: #{out}\n#{err}")
-
     assert_deploy_success(deploy_fixtures("crd", subset: %w(web.yml)))
 
     assert_logs_match_all([/Phase 4: Deploying all resources/])
+
   ensure
     build_kubectl.run("delete", "-f", filepath, use_namespace: false, log_failure: false)
   end
