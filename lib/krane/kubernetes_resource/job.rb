@@ -17,14 +17,6 @@ module Krane
       (@instance_data.dig("status", "failed") || 0) >= @instance_data.dig("spec", "backoffLimit")
     end
 
-    def predeployed?
-      krane_annotation_value("predeployed") == "true"
-    end
-
-    def kind
-      @definition["kind"]
-    end
-
     def status
       if !exists?
         super

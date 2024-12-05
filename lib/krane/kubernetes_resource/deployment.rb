@@ -60,14 +60,6 @@ module Krane
       observed_generation == current_generation
     end
 
-    def predeployed?
-      krane_annotation_value("predeployed") == "true"
-    end
-
-    def kind
-      @definition["kind"]
-    end
-
     def failure_message
       return unless @latest_rs.present?
       "Latest ReplicaSet: #{@latest_rs.name}\n\n#{@latest_rs.failure_message}"
